@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+session="multi-view"
+
+main ()
+{
+    createSession
+    separateScreens
+    updateScreens
+    connectSession
+}
+
+createSession ()
+{
+    tmux new -A -d -s $session
+}
+
+connectSession ()
+{
+    tmux ls
+    tmux a -t $session
+}
+
+separateScreens ()
+{
+    tmux split-window -h bash
+    tmux selectp -t 1
+    tmux split-window -v bash
+    tmux split-window -v bash
+    tmux split-window -v bash
+    tmux selectp -t 5
+    tmux split-window -v bash
+    tmux split-window -v bash
+    tmux selectp -t 5
+}
+
+updateScreens ()
+{
+    updateScreenA &
+    sleep 1s
+    updateScreenB &
+    sleep 1s
+    #updateScreenC &
+    sleep 1s
+    updateScreenD ;
+    sleep 2s
+    updateScreenE ;
+}
+
+sendCommandToScreen ()
+{
+    tmux send -t "$session:1.$1" "$2" C-m
+}
+
+screenA ()
+{
+    sendCommandToScreen 1 "$1"
+}
+
+screenB ()
+{
+    sendCommandToScreen 2 "$1"
+}
+
+screenC ()
+{
+    sendCommandToScreen 3 "$1"
+}
+
+screenD ()
+{
+    sendCommandToScreen 4 "$1"
+}
+
+screenE ()
+{
+    sendCommandToScreen 4 "$1"
+}
+
+
+
+updateScreenA ()
+{
+    screenA "roslaunch realsense2_camera rs_camera.launch camera:=cam_0 serial_no:=031522071096 filters:=pointcloud"
+}
+
+updateScreenB ()
+{
+    screenB "roslaunch realsense2_camera rs_camera.launch camera:=cam_1 serial_no:=031522070670 filters:=pointcloud"
+}
+
+updateScreenC ()
+{
+    screenC "roslaunch realsense2_camera rs_camera.launch camera:=cam_2 serial_no:=${ARR[4]} filters:=pointcloud"
+}
+
+updateScreenD ()
+{
+    screenD "./config/extract"
+}
+
+updateScreenE ()
+{
+    screenD "rviz"
+}
+
+IFS=$'\n' ARR=(`rs-enumerate-devices | grep "Serial Number" | sed 's/[^0-9]//g'`)
+main

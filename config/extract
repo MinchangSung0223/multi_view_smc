@@ -1,0 +1,5 @@
+#/bin/sh
+
+rostopic echo -n1 /cam_0/extrinsics/depth_to_color > config/rgb2ir_0.txt
+rostopic echo -n1 /cam_1/extrinsics/depth_to_color > config/rgb2ir_1.txt
+#rostopic echo -n1 /cam_2/extrinsics/depth_to_color > config/rgb2ir_2.txt
